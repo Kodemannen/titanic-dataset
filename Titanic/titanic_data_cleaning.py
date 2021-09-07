@@ -52,6 +52,17 @@ Embarked - port of embarkment
 """
 
 
+"""### How to interpret this dataset?
+What is your first thoughts about this dataset? Composition of different data types, possible analytical utilizations, lack of information for your possible utilization, quality etc.?
+
+In addition, we have a dataset containing the full port name and the linked abbreviation for each port. Run the code in order to load and print the dataset. 
+
+The columns are:
+
+Abbrevation - abbreviation linked to 'Embarked' in titanic.csv (foreign key)
+
+Port_name - full port name
+"""
 
 
 
@@ -60,9 +71,9 @@ def plot_distributions():
 
     fig.set_size_inches([8.3, 11.7])  # A4
 
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     # Age distribution:
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     ages = titanic_dataset["Age"]
     ax = axes[0,0]
     ax.hist(ages, bins=np.arange(ages.max()), label="Ages")
@@ -73,9 +84,9 @@ def plot_distributions():
 
 
 
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     # Ticket price distribution:
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     fares = titanic_dataset["Fare"]
     ax = axes[0,1]
     fares.hist(ax=ax, label="Ticket prices")
@@ -85,9 +96,9 @@ def plot_distributions():
     ax.legend()
 
 
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     # Survivorship distribution:
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     survivorship = titanic_dataset["Survived"]
     ax = axes[1,0]
     survivorship.hist(ax=ax, rwidth=1, bins=[0,1,2], label="Survivorship")
@@ -103,22 +114,22 @@ def plot_distributions():
     ax.legend()
 
 
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     # Sex distribution:
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     sex = titanic_dataset["Sex"]
 
     ax = axes[1,1]
     hist = sex.hist(ax=ax, rwidth=1, bins=[0,1,2], label="Sex")
     ax.set_xticks([0.5, 1.49])
-    ax.set_ylabel("N individuals")
+    #ax.set_ylabel("N individuals")
     ax.legend()
     #ax.set_xticklabels(["", "Survived"])
 
 
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     # Parch distribution:
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     parch = titanic_dataset["Parch"]
     print(parch.max()) 
 
@@ -131,9 +142,9 @@ def plot_distributions():
     ax.legend()
 
 
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     # Passenger class distribution:
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     passenger_class = titanic_dataset["Pclass"]
 
     ax = axes[2,1]
@@ -142,14 +153,14 @@ def plot_distributions():
                       label="Passenger classes")
 
     ax.set_xticks([1,2,3])
-    # ax.set_ylabel("N individuals")
+    #ax.set_ylabel("N individuals")
     ax.set_xlabel("class")
     ax.legend()
 
 
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     # Sibling/spouse distribution:
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     sibspouse = titanic_dataset["SibSp"]
 
     ax = axes[3,0]
@@ -163,19 +174,18 @@ def plot_distributions():
     ax.legend()
 
 
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     # Embarked distribution:
-    #----------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------
     data = titanic_dataset["Embarked"]
 
     ax = axes[3,1]
     data.hist(ax=ax, 
                #bins=np.arange(data.max()+2)-0.5, 
-               #bins=[0, 1,2,3],
+               bins=[0, 1,2,3],
                label="Embarked")
 
-    #ax.set_xticks([0.5,1.5,2.5])
-    ax.set_ylabel("N individuals")
+    ax.set_xticks(np.array(ax.get_xticks())+0.5)
     ax.set_xlabel("port")
     ax.legend()
 
@@ -187,7 +197,78 @@ def plot_distributions():
 
 
 
+def survival_rates():
 
+    survivorship = titanic_dataset["Survived"]
+    sex = titanic_dataset["Sex"]
+
+    
+    fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False,  sharey=False)
+
+
+    N_total_survived = np.sum(survivorship==1)
+
+    N_male_survivors = np.sum((survivorship==1)*(sex=="male"))
+    N_female_survivors = np.sum((survivorship==1)*(sex=="female"))
+
+    N_total_men = np.sum(sex=="male")
+    N_total_women = np.sum(sex=="female")
+    
+    print("Male survival rate: ", N_male_survivors/N_total_men)
+    print("Female survival rate: ", N_female_survivors/N_total_women)
+    exit("balle")
+
+
+    # ax.scatter(survivorship, 
+    #            sex, 
+    #            color=np.array(["C0", "C1"])[survivorship])
+    
+    # ax.legend("dead", "alive", scatterpoints=2)
+    # ax.set_xlabel("Survivorship")
+    # ax.set_ylabel("Sex")
+
+    # fig.savefig(f"figs/scatter2d_{classA}_{classB}")
+
+
+def scatter2d(classA, classB):
+
+
+    # this will be color encoded
+    survivorship = titanic_dataset["Survived"]
+
+    setA = titanic_dataset[classA]
+    setB = titanic_dataset[classB]
+
+    fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False,  sharey=False)
+
+    s=12 # size of dots
+
+    # plot dead:
+    ix = np.where(survivorship==0)[0]
+    ax.scatter(setA[ix],
+               setB[ix],
+               label="dead", 
+               s=s)
+
+    
+    # plot survived:
+    ix = np.where(survivorship==1)[0]
+    ax.scatter(setA[ix],
+               setB[ix],
+               label="survived",
+               s=s)
+
+    # ax.scatter(setA, 
+    #            setB, 
+    #            color=np.array(["C0", "C1"])[survivorship],
+    #            s=8)
+    
+    ax.legend()
+    ax.set_xlabel(classA)
+    ax.set_ylabel(classB)
+
+    fig.savefig(f"figs/scatter2d_{classA}_{classB}")
+    
 
 
 #pd.set_option('max_columns', 12)
@@ -196,24 +277,26 @@ def plot_distributions():
 
 
 
-"""### How to interpret this dataset?
-What is your first thoughts about this dataset? Composition of different data types, possible analytical utilizations, lack of information for your possible utilization, quality etc.?
+survival_rates()
+#plot_distributions()
 
-In addition, we have a dataset containing the full port name and the linked abbreviation for each port. Run the code in order to load and print the dataset. 
+scatter2d("Age", "Fare")
 
-The columns are:
-
-Abbrevation - abbreviation linked to 'Embarked' in titanic.csv (foreign key)
-
-Port_name - full port name
-"""
-
+exit("jalla")
 
 """
 Tanker om datasettet:
+    * Plottet fordelingene
+
     * Tanker:
         - Stor variasjon i pris
         - Overlevelse og kjønn har ganske like histogrammer 
+        - Prior: klasse, billettpris og kjønn vil ha mye å si for overlevelse
+
+        - Passenger class og ticket price representerer ca. det samme
+
+        - Overraskende uniformt fordelt over alder og billettpris
+
 
     * Se på sannsynlighet for overlevelse som funksjon av billettpris
     * Se på sannsynlighet for overlevelse som funksjon av alder
@@ -237,14 +320,32 @@ Before the dataset should be utilized, some steps remain to be undertaken. In th
 Run the following code to print Null values for each column. What do you see? Which actions can be taken when missing values appear in your dataset?
 """
 
-"""
-"""
 
 # Detecting missing values:
 
 for col in titanic_dataset.columns:
+    # dataframe.isnull() returns an array where with True for all null elements, False the others
     pct_missing = np.mean(titanic_dataset[col].isnull())
     print('{} - {}%'.format(col, round(pct_missing*100,1)))
+
+
+"""
+                Output:
+
+            PassengerId - 0.0%
+            Survived - 0.0%
+            Pclass - 0.0%
+            Name - 0.0%
+            Sex - 0.0%
+            Age - 19.9%
+            SibSp - 0.0%
+            Parch - 0.0%
+            Ticket - 0.0%
+            Fare - 0.0%
+            Cabin - 77.1%
+            Embarked - 0.2%
+"""
+
 
 """
 Please develop your code in the appropriate slots to perform the following transformations:
@@ -253,12 +354,20 @@ Please develop your code in the appropriate slots to perform the following trans
 - Remove passengers with Null values in the "Embarked" column."""
 
 
-
 # Code here to remove the "Cabin" column
+titanic_dataset.drop(labels="Cabin", axis=1, inplace=True)
+
 
 # Code here to replace Null values in the "Age" column with the average age
+# NB! Checked that the NaN values didn't affect the mean
+ages = titanic_dataset["Age"]
+mean_age = np.mean(ages)
+ages.fillna(value=mean_age, inplace=True)
+
 
 # Code here to remove passengers with Null values in the "Embarked" column (Passengers without embarkment information)
+
+
 
 """### Handle duplicate data entries
 Why is it unfavorable with duplicates in our dataset? Inspect if there duplicates exist in the titanic.csv dataset. 
@@ -317,8 +426,9 @@ Create a model that predicts if a given passenger survives, based on columns you
 
 
 
+
 def main():
-    plot_distributions()
+    #plot_distributions()
     return 0
 
 if __name__=="__main__":
