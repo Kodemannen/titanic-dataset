@@ -216,18 +216,9 @@ def survival_rates():
     
     print("Male survival rate: ", N_male_survivors/N_total_men)
     print("Female survival rate: ", N_female_survivors/N_total_women)
-    exit("balle")
 
+    print("Percentage of survivors that are male: ", N_male_survivors/N_total_survived)
 
-    # ax.scatter(survivorship, 
-    #            sex, 
-    #            color=np.array(["C0", "C1"])[survivorship])
-    
-    # ax.legend("dead", "alive", scatterpoints=2)
-    # ax.set_xlabel("Survivorship")
-    # ax.set_ylabel("Sex")
-
-    # fig.savefig(f"figs/scatter2d_{classA}_{classB}")
 
 
 def scatter2d(classA, classB):
@@ -282,7 +273,6 @@ survival_rates()
 
 scatter2d("Age", "Fare")
 
-exit("jalla")
 
 """
 Tanker om datasettet:
@@ -366,18 +356,35 @@ ages.fillna(value=mean_age, inplace=True)
 
 
 # Code here to remove passengers with Null values in the "Embarked" column (Passengers without embarkment information)
+embarked = titanic_dataset["Embarked"]
+indices_with_null = np.where(embarked.isnull())[0]  # for some reason np.where returns the
+                                                    # array in a tuple, so we need [0]
+titanic_dataset.drop(indices_with_null, inplace=True)
 
 
 
 """### Handle duplicate data entries
 Why is it unfavorable with duplicates in our dataset? Inspect if there duplicates exist in the titanic.csv dataset. 
+
+    * Duplicates will weigh one specific datapoint multiple times
+    * Risk biasing the analysis
+    * But if the duplicates are actually from different people, but with identical values, 
+      they should be kept
+
 """
 
 # Code here to inspect if duplicates exist in titanic.csv (titanic_dataset)
+duplicates = np.where(titanic_dataset.duplicated())
+n_duplicates = np.sum(duplicates)
+print("Number of duplicates is", n_duplicates)
+
+
 
 """### Relevant and nessecary information distributed among different sources
 A particular dataset will often lack essential informationm. Information is often distributed among a wide range of databases, applications, files etc. If relevant data is distributed between two tables, as in our case, and we need to gather the information, what could be a way forward?
 """
+
+
 
 # Code here to add port name to each entry (passenger) in the titanic_dataset
 
