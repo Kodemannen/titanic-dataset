@@ -1,0 +1,58 @@
+Underneath are some questions to ponder regarding data collected from the Titanic shipwreck.
+
+# Extract, transform, and load
+Extract, transform, and load (ETL) is an approach used to retrieve data from different sources, transform them according to certain requirements and then load the transformed data into a desired source. This notebook contains a short walkthrough of an ETL approach, with an additional focus on inspecting, contemplating and transforming the raw data.
+
+We have two datasets, one with passenger information and one with naming conventions of the ports of embarkment.
+
+1. Below, you will see the different columns from our dataset, titanic.csv. Do you have any first impressions or thoughts about the set? Composition of different data types, possible analytical utilizations, lack of information for your possible utilization, quality etc.?
+
+# Titanic dataset
+
+The columns are:
+
+- Passenger class (fare class)
+
+- Amount of siblings and potential partner onboard	
+
+-  Amount of parents or children onboard	
+
+- ticket number	
+
+- ticket price	
+
+- cabin number	
+
+- port of embarkment  
+
+# Additional dataset
+
+In addition, we have a dataset containing the full port name and the linked abbreviation for each port. Run the code in order to load and print the dataset. 
+
+The columns are:
+
+- abbreviation linked to 'port of embarkment' in titanic.csv (foreign key)
+
+- full port name
+
+
+
+2. Transform
+Before the dataset should be utilized, some steps remain to be undertaken. In the upcoming steps, you will be asked to inspect, clean and enhance the quality of the dataset. 
+
+a. What steps are (often/could be) nessecary when inspecting, transforming and cleaning the data?
+
+b. Which actions can be taken when missing values appear in your dataset - e.g. columns with a few NaN, columns with many NaN, numerical versus String values?
+
+c. Why is it unfavorable with duplicates in our dataset?
+
+
+3. A particular dataset will often lack essential informationm. Information is often distributed among a wide range of databases, applications, files etc. If relevant data is distributed between two tables, as in our case, and we need to gather the information, what could be a way forward?
+
+
+4. Picture us utilizing the dataset for passenger survival predictions. Are there columns that should be removed or that you consider fairly irrelevant for such a prediction?
+
+
+5. Let us say that we have implemented a logistical regression model to predict a passengers chance of survival. 
+a. How can we obtain an impression of the model's performance?  
+b. What are some key measurements used to determine the success of your model's ability to predict?
