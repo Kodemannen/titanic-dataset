@@ -11,6 +11,8 @@ import pandas as pd
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import precision_recall_fscore_support
+import tensorflow as tf
+
 import os
 
 import matplotlib.pyplot as plt
@@ -384,12 +386,17 @@ port_abbrevations = ports_dataset["Abbrevation"]
 # Copy embarked:
 embarked = titanic_dataset["Embarked"]
 titanic_dataset["Full_port_name"] = embarked.copy()
+titanic_dataset["Port_enum"] = embarked.copy()
 
 # Then replace the copies with the corresponding port name:
-for abr, fullname in zip(port_abbrevations, port_names): 
+for abr, fullname, port_enum in zip(port_abbrevations, port_names, [0,1,2]): 
     titanic_dataset["Full_port_name"].replace(to_replace=abr, value=fullname, inplace=True)
+    titanic_dataset["Port_enum"].replace(to_replace=abr, value=port_enum, inplace=True)
 
 
+# 0 = Cherbourg
+# 1 = Queenstown
+# 2 = Southampton
 
 
 """### Irrelevant columns
@@ -410,7 +417,7 @@ Answer:
 
 
 # Run the following to inspect the present columns
-print("Inspect columns and remove irrelevant ones:")
+print("Inspect columns:")
 print(titanic_dataset.columns)
 
 
@@ -431,29 +438,59 @@ print(titanic_dataset.columns)
 """## Save
 We need to save our new enhanced dataset.
 """
+
+
+
+# Code here to save titanic_dataset as a new CSV
 titanic_dataset.to_csv("cleaned_dataset.csv")
 print("Saved.")
 
 
-# Code here to save titanic_dataset as a new CSV
-
 """### Additional questions
 Have you made up your mind regarding other transformations, inspections or measures that should be taken to increase the quality and consistency of the titanic dataset?
 
-Answer:
-    * Zero-mean and normalize the data is usually nice
-    * Could "downsample" the age data into fewer groups
-    * Same with ticket price
 """
+
+
+# Convert strings to numbers for the sex and Full_port_name classes:
+
+# Then replace the copies with the corresponding port name:
+for gender, val in zip(["male", "female"], [0,1]): 
+    titanic_dataset["Sex"].replace(to_replace=gender, value=val, inplace=True)
+
 
 
 
 # Write some thoughts around the bonus question here:
+"""
+Answer:
+
+    * Remove survived column, as this will be the labels
+
+    * Zero-mean and normalize the data is usually nice
+    * Could downsample the age data into fewer groups
+        - Same with ticket price
+"""
+
+
 
 """# Simple Survival Modelling
 
 Create a model that predicts if a given passenger survives, based on columns you deem relevant. You can choose an approach or a technique yourself. The accuracy and applicability is not too important, but we would like you to make some considerations around the approach (is it actually suitable, what is the advantages or disadvantages etc.)
 """
+titanic_tensor = titanic_dataset.copy()
+titanic_tensor.drop(labels="Full_port_name", axis="columns", inplace=True)
+titanic_tensor.drop(labels="Survived", axis="columns", inplace=True)
+
+titanic_labels = titanic_dataset["Survived"].copy()
+
+
+titanic_tensor = tf.convert_to_tensor(titanic_dataset.drop(labels="Full_port_name", axis="columns"))
+print(titanic_tensor.shape) 
+
+#dataset = tf.convert_to_tensor(titanic_dataset)
+
+
 
 # Implement a modell predicting 'Survived' here. 
 # Tip: It may be that the data set needs some further transformation. 
