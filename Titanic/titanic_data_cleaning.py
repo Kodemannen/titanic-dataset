@@ -245,7 +245,7 @@ def scatter2d(classA, classB):
     ax.set_xlabel(classA)
     ax.set_ylabel(classB)
 
-    fig.savefig(f"figs/scatter2d_{classA}_{classB}")
+    fig.savefig(f"figs/scatter2d_{classA}_{classB}.pdf")
     
 
 
@@ -258,6 +258,7 @@ def scatter2d(classA, classB):
 survival_rates()
 plot_distributions()
 scatter2d("Age", "Fare")
+scatter2d("Sex", "Fare")
 
 
 """
@@ -512,6 +513,7 @@ titanic_dataset2.drop(labels="Survived", axis="columns", inplace=True)
 
 
 classes_for_normalizing = ["Age", "Fare"]
+#classes_for_normalizing = []
 for c in classes_for_normalizing: 
     try:
         mean = np.mean(titanic_dataset2[c])
