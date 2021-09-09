@@ -426,12 +426,27 @@ print(titanic_dataset.columns)
 # Hint: Does some columns reflect the same information? If so, remove them from the dataset.
 # Code here to remove columns if deemed nessecary
 
+#-----------------------------------------------------------------------------
+# Remove unneccesary columns:
+#-----------------------------------------------------------------------------
 titanic_dataset.drop(labels="Pclass", axis="columns", inplace=True)
 titanic_dataset.drop(labels="Ticket", axis="columns", inplace=True)
 titanic_dataset.drop(labels="PassengerId", axis="columns", inplace=True)
 titanic_dataset.drop(labels="Name", axis="columns", inplace=True)
 titanic_dataset.drop(labels="Embarked", axis="columns", inplace=True)
 
+
+#-----------------------------------------------------------------------------
+# Comment out to include in the dataset:
+#-----------------------------------------------------------------------------
+
+
+titanic_dataset.drop(labels="Age", axis="columns", inplace=True)
+#titanic_dataset.drop(labels="Fare", axis="columns", inplace=True)
+#titanic_dataset.drop(labels="Parch", axis="columns", inplace=True)
+#titanic_dataset.drop(labels="SibSp", axis="columns", inplace=True)
+titanic_dataset.drop(labels="Port_enum", axis="columns", inplace=True)
+#titanic_dataset.drop(labels="Sex", axis="columns", inplace=True)
 
 print("Final result:")
 print(titanic_dataset.columns)
@@ -457,8 +472,11 @@ Have you made up your mind regarding other transformations, inspections or measu
 # Convert strings to numbers for the sex and Full_port_name classes:
 
 # Then replace the copies with the corresponding port name:
-for gender, val in zip(["male", "female"], [0,1]): 
-    titanic_dataset["Sex"].replace(to_replace=gender, value=val, inplace=True)
+try:
+    for gender, val in zip(["male", "female"], [0,1]): 
+        titanic_dataset["Sex"].replace(to_replace=gender, value=val, inplace=True)
+except KeyError:
+    pass
 
 
 
@@ -492,28 +510,26 @@ titanic_dataset2 = titanic_dataset.copy()
 titanic_dataset2.drop(labels="Full_port_name", axis="columns", inplace=True)
 titanic_dataset2.drop(labels="Survived", axis="columns", inplace=True)
 
-age_mean = np.mean(titanic_dataset2["Age"])
-age_std = np.std(titanic_dataset2["Age"])
-titanic_dataset2["Age"] = (titanic_dataset2["Age"]-age_mean)/age_std
-
 
 classes_for_normalizing = ["Age", "Fare"]
 for c in classes_for_normalizing: 
-    mean = np.mean(titanic_dataset2[c])
-    std = np.std(titanic_dataset2[c])
-    titanic_dataset2[c] = (titanic_dataset2[c]-mean)/std
+    try:
+        mean = np.mean(titanic_dataset2[c])
+        std = np.std(titanic_dataset2[c])
+        titanic_dataset2[c] = (titanic_dataset2[c]-mean)/std
+    except KeyError:
+        pass
 
 
 
 titanic_tensor = tf.convert_to_tensor(titanic_dataset2)
 titanic_labels = tf.convert_to_tensor(titanic_dataset["Survived"].copy())
-print(titanic_tensor.shape) 
 
 
 #-----------------------------------------------------------------------------
 # Split and make test set:
 #-----------------------------------------------------------------------------
-test_set_percent = 0.1
+test_set_percent = 0.2
 n_total_data = len(titanic_labels)
 n_classes = 2
 
@@ -546,14 +562,15 @@ assert training_set.shape[0] + test_set.shape[0] == n_total_data
 input_size = titanic_tensor.shape[1]
 output_size = 1
 hidden_layers = [32, 32]
+#hidden_layers = []
 
 inputs = keras.Input(shape=(input_size, ), 
                      name="input_layer")
 
 # Forward pass:
 x = inputs
-# for i in range(len(hidden_layers)):
-#     x = layers.Dense(units=hidden_layers[i], activation="relu")(x)  
+for i in range(len(hidden_layers)):
+    x = layers.Dense(units=hidden_layers[i], activation="relu")(x)  
 
 # Output:
 #outputs = layers.Dense(units=output_size, activation="softmax")(x)
@@ -578,6 +595,7 @@ model.summary()
 #-----------------------------------------------------------------------------
 #loss = keras.losses.CategoricalCrossentropy(from_logits=False)
 loss = keras.losses.BinaryCrossentropy(from_logits=False)
+callback = tf.keras.callbacks.EarlyStopping(monitor="loss", patience=3)
 
 model.compile(
     loss=loss,
@@ -589,10 +607,23 @@ print(titanic_labels.shape)
 
 history = model.fit(training_set, 
                     training_labels, 
-                    batch_size=10,
+                    batch_size=40,
                     epochs=100,
-                    validation_split=0.2)
+                    validation_split=0.2,
+                    callbacks=[callback])
 
+
+
+#-----------------------------------------------------------------------------
+# plot training development:
+#-----------------------------------------------------------------------------
+fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False,  sharey=False)
+for key in history.history.keys():
+    ax.plot(history.history[key], label=key)
+ax.legend()
+ax.set_xlabel("epoch")
+ax.set_title("Training development")
+fig.savefig("figs/training_development.pdf")
 
 
 #-----------------------------------------------------------------------------
@@ -603,10 +634,17 @@ n_correct = np.sum(predictions==test_labels)
 accuracy = n_correct/len(test_labels)
 print("Test accuracy:", accuracy) 
 
-exit("fihasd")
 
 # print(predictions) 
 
+"""
+Resultat:
+    * Opptil 89% accuracy
+    * Stor variasjon mhp. rng seed, som betyr at modellen ikke er veldig robust 
+
+    * Kjønn ser ut som den viktigste klassen
+
+"""
 
 
 # Implement a modell predicting 'Survived' here. 
@@ -619,6 +657,15 @@ exit("fihasd")
 
 # Obtain the recall and precision here.
 
+# Vi sier at positiv = survival, i.e. label 1
+
+true_positives = predictions*test_labels
+
+false_positives = 0
+
+n_false_positives = (predictions-1)
+
+
 
 
 
@@ -627,4 +674,5 @@ def main():
     return 0
 
 if __name__=="__main__":
+    print(    ) 
     main()
