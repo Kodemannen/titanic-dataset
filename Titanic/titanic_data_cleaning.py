@@ -656,14 +656,21 @@ Resultat:
 """
 
 # Obtain the recall and precision here.
-
 # Vi sier at positiv = survival, i.e. label 1
+true_positives = np.argwhere(np.array(test_labels==1) * (predictions==1))
+false_positives = np.argwhere(np.array(test_labels==0) * (predictions==1))
+false_negatives = np.argwhere(np.array(test_labels==1) * (predictions==0))
+true_negatives = np.argwhere(np.array(test_labels==0) * (predictions==0))
 
-true_positives = predictions*test_labels
+assert len(true_positives)+len(false_positives)+len(false_negatives) + len(true_negatives) == len(predictions)
 
-false_positives = 0
+precision = len(true_positives) / (len(true_positives) + len(false_positives))
+recall = len(true_positives) / (len(true_positives) + len(false_negatives))
+print("Precision: ", precision) 
+print("Recall: ", recall) 
 
-n_false_positives = (predictions-1)
+#print(true_positives==true_positives2)
+#n_false_positives = (predictions-1)
 
 
 
