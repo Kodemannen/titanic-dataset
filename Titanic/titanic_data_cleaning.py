@@ -483,9 +483,11 @@ Create a model that predicts if a given passenger survives, based on columns you
 print("  ") 
 print("Normalizing:")
 
+#-----------------------------------------------------------------------------
 # Zero-meaning and normalizing:
-# convert to tensors:
+#-----------------------------------------------------------------------------
 
+# convert to tensors:
 titanic_dataset2 = titanic_dataset.copy()
 titanic_dataset2.drop(labels="Full_port_name", axis="columns", inplace=True)
 titanic_dataset2.drop(labels="Survived", axis="columns", inplace=True)
@@ -505,7 +507,31 @@ for c in classes_for_normalizing:
 
 titanic_tensor = tf.convert_to_tensor(titanic_dataset2)
 titanic_labels = tf.convert_to_tensor(titanic_dataset["Survived"].copy())
+print(titanic_tensor.shape) 
 
+
+#-----------------------------------------------------------------------------
+# Split and make test set:
+#-----------------------------------------------------------------------------
+test_set_percent = 0.1
+n_total_data = len(titanic_labels)
+
+random_indices = np.random.choice(n_total_data, size=n_total_data, replace=False)
+splitIndex = round(n_total_data*(1-test_set_percent))
+training_indices = random_indices[:splitIndex]
+test_indices = random_indices[splitIndex:]
+
+training_set  = tf.convert_to_tensor(np.array(titanic_tensor)[training_indices])
+training_labels = tf.convert_to_tensor(np.array(titanic_labels)[training_indices])
+
+test_set  = tf.convert_to_tensor(np.array(titanic_tensor)[test_indices])
+test_labels = tf.convert_to_tensor(np.array(titanic_labels)[test_indices])
+
+
+
+#-----------------------------------------------------------------------------
+# Create neural net
+#-----------------------------------------------------------------------------
 input_size = titanic_tensor.shape[1]
 output_size = 2
 hidden_layers = [32, 32]
@@ -535,9 +561,9 @@ model = keras.Model(inputs=inputs, outputs=outputs, name="titanic_model")
 model.summary()
 
 
-##-----------------------------------------------------------------------------
-## Training                                                                   : 
-##-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+# Training a neural net to predict survival                                  : 
+#-----------------------------------------------------------------------------
 #loss = keras.losses.CategoricalCrossentropy(from_logits=False)
 loss = keras.losses.BinaryCrossentropy(from_logits=False)
 
@@ -549,9 +575,9 @@ model.compile(
 print(titanic_tensor.shape)
 print(titanic_labels.shape)
 
-history = model.fit(titanic_tensor, 
-                    titanic_labels, 
-                    batch_size=1,
+history = model.fit(training_set, 
+                    training_labels, 
+                    batch_size=10,
                     epochs=10,
                     validation_split=0.2)
 
