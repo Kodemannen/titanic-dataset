@@ -515,6 +515,7 @@ print(titanic_tensor.shape)
 #-----------------------------------------------------------------------------
 test_set_percent = 0.1
 n_total_data = len(titanic_labels)
+n_classes = 2
 
 random_indices = np.random.choice(n_total_data, size=n_total_data, replace=False)
 splitIndex = round(n_total_data*(1-test_set_percent))
@@ -527,13 +528,23 @@ training_labels = tf.convert_to_tensor(np.array(titanic_labels)[training_indices
 test_set  = tf.convert_to_tensor(np.array(titanic_tensor)[test_indices])
 test_labels = tf.convert_to_tensor(np.array(titanic_labels)[test_indices])
 
+assert training_set.shape[0] + test_set.shape[0] == n_total_data
+
+##-----------------------------------------------------------------------------
+## Make onehot encoded labels                                                 :
+##-----------------------------------------------------------------------------
+#test_labels_onehot = np.zeros(shape=(test_labels.shape[0], n_classes))
+#test_labels_onehot[np.arange(test_labels.shape[0]),test_labels]=1
+
+#training_labels_onehot = np.zeros(shape=(training_labels.shape[0], n_classes))
+#training_labels_onehot[np.arange(training_labels.shape[0]),training_labels]=1
 
 
 #-----------------------------------------------------------------------------
 # Create neural net
 #-----------------------------------------------------------------------------
 input_size = titanic_tensor.shape[1]
-output_size = 2
+output_size = 1
 hidden_layers = [32, 32]
 
 inputs = keras.Input(shape=(input_size, ), 
@@ -545,7 +556,8 @@ x = inputs
 #     x = layers.Dense(units=hidden_layers[i], activation="relu")(x)  
 
 # Output:
-outputs = layers.Dense(units=output_size, activation="softmax")(x)
+#outputs = layers.Dense(units=output_size, activation="softmax")(x)
+outputs = layers.Dense(units=output_size, activation="sigmoid")(x)
 
 
 #x = layers.Conv2D(filters=32, kernel_size=(3, 3), activation="relu")(inputs)
@@ -578,10 +590,22 @@ print(titanic_labels.shape)
 history = model.fit(training_set, 
                     training_labels, 
                     batch_size=10,
-                    epochs=10,
+                    epochs=100,
                     validation_split=0.2)
 
 
+
+#-----------------------------------------------------------------------------
+# Prediction on test set:
+#-----------------------------------------------------------------------------
+predictions = ((model.predict(x=test_set) > 0.5)*1).reshape(-1)
+n_correct = np.sum(predictions==test_labels)
+accuracy = n_correct/len(test_labels)
+print("Test accuracy:", accuracy) 
+
+exit("fihasd")
+
+# print(predictions) 
 
 
 
