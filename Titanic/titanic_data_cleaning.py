@@ -196,17 +196,65 @@ def survival_rates():
     fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False,  sharey=False)
 
 
-    N_total_survived = np.sum(survivorship==1)
+    N_total_passengers = len(sex)
+    N_total_survivors = np.sum(survivorship==1)
+    N_total_drowned = np.sum(survivorship==0)
 
     N_male_survivors = np.sum((survivorship==1)*(sex=="male"))
     N_female_survivors = np.sum((survivorship==1)*(sex=="female"))
+
+    N_male_drowned = np.sum((survivorship==0)*(sex=="male"))
+    N_female_drowned = np.sum((survivorship==0)*(sex=="female"))
 
     N_total_men = np.sum(sex=="male")
     N_total_women = np.sum(sex=="female")
     
     print("Male survival rate: ", N_male_survivors/N_total_men)
     print("Female survival rate: ", N_female_survivors/N_total_women)
-    print("Percentage of survivors that are male: ", N_male_survivors/N_total_survived)
+    print("Percentage of survivors that are male: ", N_male_survivors/N_total_survivors)
+    print("  ")
+
+
+    #----------------------------------------------------------------------------------------------
+    # Calculating the probability of a person surviving, given that it is a man:
+    #----------------------------------------------------------------------------------------------
+    prior_drowned = N_total_drowned/N_total_passengers      
+
+    likelihood_drowned = N_male_drowned/N_total_drowned
+    posterior_drowned = likelihood_drowned*prior_drowned
+
+    prior_survivors = N_total_survivors/N_total_passengers      
+    likelihood_survivors = N_male_survivors/N_total_survivors
+    posterior_survivors = likelihood_survivors*prior_survivors
+    
+    normalization_constant = posterior_drowned + posterior_survivors
+
+    #posterior_drowned /= normalization_constant
+    posterior_survivors /= normalization_constant
+
+    print("Prob(survived given male) =", posterior_survivors)
+
+
+
+    #----------------------------------------------------------------------------------------------
+    # Calculating the probability of a person surviving, given that it is a woman:
+    #----------------------------------------------------------------------------------------------
+    prior_drowned = N_total_drowned/N_total_passengers      
+    likelihood_drowned = N_female_drowned/N_total_drowned
+    posterior_drowned = likelihood_drowned*prior_drowned
+
+    prior_survivors = N_total_survivors/N_total_passengers      
+    likelihood_survivors = N_female_survivors/N_total_survivors
+    posterior_survivors = likelihood_survivors*prior_survivors
+    
+    normalization_constant = posterior_drowned + posterior_survivors
+
+    #posterior_drowned /= normalization_constant
+    posterior_survivors /= normalization_constant
+
+    print("Prob(survived given female) =", posterior_survivors)
+
+    
 
 
 

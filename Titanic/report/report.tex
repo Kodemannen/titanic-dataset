@@ -109,20 +109,23 @@ For some choice of $x=0,1$, $y=0,1$, we have by Bayes rule:
     \text{Prob}(\text{survived}=x | \text{sex}=y, D) \propto \text{Prob}( \text{sex}=y|\text{survived}=x,D ) \cdot \text{Prob}(\text{survived}=x|D)
 \end{equation}
 
-We can calculate 
+We can calculate the prior (the probability estimate of survival prior to knowing the sex of the given person)
 
 \begin{equation}
     \text{Prob}(\text{survived}=x|D) = \frac{N_{\text{survived}=x}}{N_\text{total passengers}},
 \end{equation}
-and similarly 
+and similarly the likelihood
 \begin{equation}
     \text{Prob}(\text{sex}=y|\text{survived}=x, D) = \frac{N_{\text{survived}=x, \text{sex}=y}}{N_\text{total survivors}}
 \end{equation}
-with the condition 
+with the normalization condition 
 \begin{equation}
-    \text{Prob}(\text{sex}=0|\text{survived}=x, D) + \text{Prob}(\text{sex}=1|\text{survived}=x, D) = 1
+    \text{Prob}(\text{survived}=0|\text{sex}=y, D) + \text{Prob}(\text{survived}=1|\text{sex}=y, D) = 1.
 \end{equation}
-as we only have those two options.
+
+
+
+
 
 
 \clearpage
