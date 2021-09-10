@@ -108,7 +108,7 @@ def plot_distributions():
     ax.set_ylabel("N individuals")
     ax.legend()
     ax.set_ylabel("N individuals")
-    ax.set_xticklabels(["died", "survived"])
+    ax.set_xticklabels(["drowned", "survived"])
     ax.legend()
 
 
@@ -227,7 +227,7 @@ def scatter2d(classA, classB):
     ix = np.where(survivorship==0)[0]
     ax.scatter(setA[ix],
                setB[ix],
-               label="dead", 
+               label="drowned", 
                s=s)
 
     
@@ -282,7 +282,7 @@ def scatter3d(classA, classB):
     ax.scatter(xs=setA[ix],
                ys=setB[ix],
                zs=setC_enum[ix],
-               label="dead", 
+               label="drowned", 
                s=s)
 
 
@@ -309,9 +309,7 @@ def scatter3d(classA, classB):
     #plt.show()
 
 
-    fig.savefig(f"figs/scatter3d_{classA}_{classB}_{classC}.pdf")
-    fig.show()
-    exit('horeegg:')
+    fig.savefig(f"figs/scatter3d.pdf")
 
 #pd.set_option('max_columns', 12)
 
@@ -324,7 +322,6 @@ plot_distributions()
 scatter2d("Age", "Fare")
 scatter2d("Sex", "Fare")
 scatter3d("Fare", "Age")
-exit("fit")
 
 
 """
@@ -715,6 +712,8 @@ Resultat:
     * Stor variasjon mhp. rng seed, som betyr at modellen ikke er veldig robust 
 
     * Kjønn ser ut som den viktigste klassen
+
+    * Men er jo klart at dette datasettet er umulig å klassifisere særlig bra
 
 """
 

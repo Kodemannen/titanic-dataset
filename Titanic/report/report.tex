@@ -99,32 +99,55 @@
 
 
 \clearpage
+% Bayesian analysis
+\section*{Bayesian probability analysis}
+Let us look at which piece of data about an individual gives us most information 
+about the likelihood of survival, given our dataset $D$.
+
+For some choice of $x=0,1$, $y=0,1$, we have by Bayes rule:
+\begin{equation}
+    \text{Prob}(\text{survived}=x | \text{sex}=y, D) \propto \text{Prob}( \text{sex}=y|\text{survived}=x,D ) \cdot \text{Prob}(\text{survived}=x|D)
+\end{equation}
+
+We can calculate 
+
+\begin{equation}
+    \text{Prob}(\text{survived}=x|D) = \frac{N_{\text{survived}=x}}{N_\text{total passengers}},
+\end{equation}
+and similarly 
+\begin{equation}
+    \text{Prob}(\text{sex}=y|\text{survived}=x, D) = \frac{N_{\text{survived}=x, \text{sex}=y}}{N_\text{total survivors}}
+\end{equation}
+with the condition 
+\begin{equation}
+    \text{Prob}(\text{sex}=0|\text{survived}=x, D) + \text{Prob}(\text{sex}=1|\text{survived}=x, D) = 1
+\end{equation}
+as we only have those two options.
+
+
+\clearpage
 \begin{equation}
     %p(\text{survival}, \text{sex}) = p(\text{survival} | \text{sex})p(\text{sex})
     \begin{split}
-        p(A,B) & = p(A| B)p(B) \\
-        p(B,A) & = p(B|A)p(A)
+        p(A,B|D) & = p(A|B,D)p(B|D) \\
+        p(B,A|D) & = p(B|A,D)p(A|D)
     \end{split}
 \end{equation}
 
 and
 \begin{equation}
-    p(A,B) = p(B,A)
+    p(A,B|D) = p(B,A|D)
 \end{equation}
 meaning 
 \begin{equation}
-    p(A|B) =  \frac{p(B|A)p(A)}{p(B)}
+    p(A|B,D) =  \frac{p(B|A,D)p(A|D)}{p(B|D)}
 \end{equation}
 
 
-% Bayesian analysis
 
-\begin{equation}
-    p(\text{survival} | \text{gender}) = \frac{p( \text{gender}|\text{survival} )p(\text{survival})}{p(\text{gender})}
-\end{equation}
 
 \clearpage
-\section{Training a neural network to predict survival}
+\section*{Training a neural network to predict survival}
 \begin{figure}[h]
     \centering
     \includegraphics[scale=.4]{../figs/model.pdf}
