@@ -7,9 +7,9 @@ if expand('%') == '' && !&modified && line('$') <= 1 && getline(1) == ''
   let s:wipebuf = bufnr('%')
 endif
 set shortmess=aoO
-badd +524 titanic_data_cleaning.py
+badd +40 titanic_data_cleaning.py
 badd +76 report/report.tex
-badd +58 questions.txt
+badd +60 questions.txt
 badd +76 ~/repos/neural-networks/python/cnn/convnet.py
 argglobal
 %argdel
@@ -32,12 +32,36 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 525 - ((1 * winheight(0) + 21) / 43)
+let s:l = 40 - ((38 * winheight(0) + 21) / 43)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-525
+40
 normal! 0
+tabedit questions.txt
+set splitbelow splitright
+set nosplitbelow
+wincmd t
+set winminheight=0
+set winheight=1
+set winminwidth=0
+set winwidth=1
+argglobal
+setlocal fdm=manual
+setlocal fde=0
+setlocal fmr={{{,}}}
+setlocal fdi=#
+setlocal fdl=0
+setlocal fml=1
+setlocal fdn=20
+setlocal fen
+silent! normal! zE
+let s:l = 60 - ((36 * winheight(0) + 21) / 43)
+if s:l < 1 | let s:l = 1 | endif
+exe s:l
+normal! zt
+60
+normal! 010|
 tabedit report/report.tex
 set splitbelow splitright
 wincmd _ | wincmd |
@@ -50,7 +74,8 @@ set winminheight=0
 set winheight=1
 set winminwidth=0
 set winwidth=1
-exe 'vert 2resize ' . ((&columns * 3 + 63) / 127)
+exe 'vert 1resize ' . ((&columns * 125 + 63) / 127)
+exe 'vert 2resize ' . ((&columns * 1 + 63) / 127)
 argglobal
 setlocal fdm=manual
 setlocal fde=0
@@ -61,12 +86,12 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 76 - ((28 * winheight(0) + 29) / 58)
+let s:l = 123 - ((38 * winheight(0) + 21) / 43)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
-76
-normal! 0
+123
+normal! 014|
 wincmd w
 argglobal
 if bufexists("titanic_data_cleaning.py") | buffer titanic_data_cleaning.py | else | edit titanic_data_cleaning.py | endif
@@ -79,14 +104,15 @@ setlocal fml=1
 setlocal fdn=20
 setlocal fen
 silent! normal! zE
-let s:l = 244 - ((0 * winheight(0) + 29) / 58)
+let s:l = 244 - ((0 * winheight(0) + 21) / 43)
 if s:l < 1 | let s:l = 1 | endif
 exe s:l
 normal! zt
 244
 normal! 0
 wincmd w
-exe 'vert 2resize ' . ((&columns * 3 + 63) / 127)
+exe 'vert 1resize ' . ((&columns * 125 + 63) / 127)
+exe 'vert 2resize ' . ((&columns * 1 + 63) / 127)
 tabnext 1
 set stal=1
 if exists('s:wipebuf') && getbufvar(s:wipebuf, '&buftype') isnot# 'terminal'

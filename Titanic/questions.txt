@@ -55,4 +55,9 @@ c. Why is it unfavorable with duplicates in our dataset?
 
 5. Let us say that we have implemented a logistical regression model to predict a passengers chance of survival. 
 a. How can we obtain an impression of the model's performance?  
+    - Test set
 b. What are some key measurements used to determine the success of your model's ability to predict?
+    - Loss
+    - Accuracy
+    - Precision
+    - Recall

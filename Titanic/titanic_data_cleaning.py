@@ -17,8 +17,10 @@ from sklearn.metrics import precision_recall_fscore_support
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras import layers
+from tensorflow.keras.utils import plot_model
 
 import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 import seaborn as sns
 sns.set()
 
@@ -248,6 +250,68 @@ def scatter2d(classA, classB):
     fig.savefig(f"figs/scatter2d_{classA}_{classB}.pdf")
     
 
+def scatter3d(classA, classB):
+
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+
+    # this will be color encoded
+    survivorship = titanic_dataset["Survived"]
+
+    setA = titanic_dataset[classA]
+    setB = titanic_dataset[classB]
+    setC = np.array(titanic_dataset["Sex"])
+    classC = "Sex"
+    
+    males = np.argwhere(setC=="male").reshape(-1)
+    females = np.argwhere(setC=="female").reshape(-1)
+
+    setC_enum = np.array(setC).copy()
+    setC_enum[males]=0
+    setC_enum[females]=1
+    setC_enum.reshape(-1)
+
+    setC_enum = np.array(setC_enum, dtype=np.float)
+
+
+
+    s=3 # size of dots
+
+    # plot dead:
+    ix = np.where(survivorship==0)[0]
+    ax.scatter(xs=setA[ix],
+               ys=setB[ix],
+               zs=setC_enum[ix],
+               label="dead", 
+               s=s)
+
+
+    
+    # plot survived:
+    ix = np.where(survivorship==1)[0]
+    ax.scatter(xs=setA[ix],
+               ys=setB[ix],
+               #zs=np.ones(len(ix)),
+               zs=setC_enum[ix],
+               label="survived",
+               s=s)
+
+    # ax.scatter(setA, 
+    #            setB, 
+    #            color=np.array(["C0", "C1"])[survivorship],
+    #            s=8)
+    
+    ax.legend()
+    ax.set_xlabel(classA)
+    ax.set_ylabel(classB)
+    ax.set_zlabel(classC)
+
+    #plt.show()
+
+
+    fig.savefig(f"figs/scatter3d_{classA}_{classB}_{classC}.pdf")
+    fig.show()
+    exit('horeegg:')
 
 #pd.set_option('max_columns', 12)
 
@@ -259,6 +323,8 @@ survival_rates()
 plot_distributions()
 scatter2d("Age", "Fare")
 scatter2d("Sex", "Fare")
+scatter3d("Fare", "Age")
+exit("fit")
 
 
 """
@@ -442,11 +508,11 @@ titanic_dataset.drop(labels="Embarked", axis="columns", inplace=True)
 #-----------------------------------------------------------------------------
 
 
-titanic_dataset.drop(labels="Age", axis="columns", inplace=True)
+#titanic_dataset.drop(labels="Age", axis="columns", inplace=True)
 #titanic_dataset.drop(labels="Fare", axis="columns", inplace=True)
 #titanic_dataset.drop(labels="Parch", axis="columns", inplace=True)
 #titanic_dataset.drop(labels="SibSp", axis="columns", inplace=True)
-titanic_dataset.drop(labels="Port_enum", axis="columns", inplace=True)
+#titanic_dataset.drop(labels="Port_enum", axis="columns", inplace=True)
 #titanic_dataset.drop(labels="Sex", axis="columns", inplace=True)
 
 print("Final result:")
@@ -563,7 +629,7 @@ assert training_set.shape[0] + test_set.shape[0] == n_total_data
 #-----------------------------------------------------------------------------
 input_size = titanic_tensor.shape[1]
 output_size = 1
-hidden_layers = [32, 32]
+hidden_layers = [32]
 #hidden_layers = []
 
 inputs = keras.Input(shape=(input_size, ), 
@@ -590,6 +656,10 @@ outputs = layers.Dense(units=output_size, activation="sigmoid")(x)
 
 model = keras.Model(inputs=inputs, outputs=outputs, name="titanic_model") 
 model.summary()
+plot_model(model, 
+           to_file="figs/model.pdf", 
+           show_shapes=True,
+           show_layer_names=True)
 
 
 #-----------------------------------------------------------------------------

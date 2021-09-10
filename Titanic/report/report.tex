@@ -79,11 +79,26 @@
 
 
 
-\begin{figure}[h]
+\begin{figure}
     \centering
-    \includegraphics[scale=0.7]{../figs/distributions.pdf}%
+    \includegraphics[scale=0.67]{../figs/distributions.pdf}%
 \end{figure}
 
+
+\clearpage
+\begin{figure}
+    \centering
+    \includegraphics[scale=.75]{../figs/scatter2d_Age_Fare.pdf}
+    \includegraphics[scale=0.7]{../figs/scatter3d.pdf}%
+\end{figure}
+
+% \begin{figure}[h]
+%     \centering
+%     \includegraphics[scale=0.7]{../figs/scatter3d.pdf}%
+% \end{figure}
+
+
+\clearpage
 \begin{equation}
     %p(\text{survival}, \text{sex}) = p(\text{survival} | \text{sex})p(\text{sex})
     \begin{split}
@@ -108,21 +123,17 @@ meaning
     p(\text{survival} | \text{gender}) = \frac{p( \text{gender}|\text{survival} )p(\text{survival})}{p(\text{gender})}
 \end{equation}
 
-
+\clearpage
+\section{Training a neural network to predict survival}
 \begin{figure}[h]
     \centering
-    \includegraphics[scale=.75]{../figs/scatter2d_Age_Fare.pdf}%
+    \includegraphics[scale=.4]{../figs/model.pdf}
+    \includegraphics[scale=.65]{../figs/training_development.pdf}
 \end{figure}
-
 % \begin{figure}[h]
 %     \centering
-%     \includegraphics[scale=0.7]{../figs/scatter2d_Sex_Fare.pdf}%
+%     \includegraphics[scale=.65]{../figs/training_development.pdf}%
 % \end{figure}
-
-\begin{figure}[h]
-    \centering
-    \includegraphics[scale=.75]{../figs/training_development.pdf}%
-\end{figure}
 
 % \clearpage
 % \begin{figure}
