@@ -272,17 +272,20 @@ def scatter2d(classA, classB):
     s=12 # size of dots
 
     # plot dead:
-    ix = np.where(survivorship==0)[0]
-    ax.scatter(setA[ix],
-               setB[ix],
+    #ix = np.where(survivorship==0)[0]
+    #ix = np.where(survivorship==0)[0]
+
+
+    ax.scatter(setA.where(survivorship==0),
+               setB.where(survivorship==0),
                label="drowned", 
                s=s)
 
+
     
     # plot survived:
-    ix = np.where(survivorship==1)[0]
-    ax.scatter(setA[ix],
-               setB[ix],
+    ax.scatter(setA.where(survivorship==1),
+               setB.where(survivorship==1),
                label="survived",
                s=s)
 
@@ -308,39 +311,46 @@ def scatter3d(classA, classB):
 
     setA = titanic_dataset[classA]
     setB = titanic_dataset[classB]
-    setC = np.array(titanic_dataset["Sex"])
+    setC = titanic_dataset["Sex"]
     classC = "Sex"
+
+    setC = setC.mask(cond=setC=="male", other=0.)
+    setC = setC.mask(cond=setC=="female", other=1.)
     
-    males = np.argwhere(setC=="male").reshape(-1)
-    females = np.argwhere(setC=="female").reshape(-1)
+    # males = np.argwhere(setC=="male").reshape(-1)
+    # females = np.argwhere(setC=="female").reshape(-1)
 
-    setC_enum = np.array(setC).copy()
-    setC_enum[males]=0
-    setC_enum[females]=1
-    setC_enum.reshape(-1)
+    # setC_enum = np.array(setC).copy()
+    # setC_enum[males]=0
+    # setC_enum[females]=1
 
-    setC_enum = np.array(setC_enum, dtype=np.float)
+    # setC_enum.reshape(-1)
+
+    # setC_enum = np.array(setC_enum, dtype=np.float)
 
 
+    #zs_dead = 
 
     s=3 # size of dots
 
+
+
+
+
+
     # plot dead:
-    ix = np.where(survivorship==0)[0]
-    ax.scatter(xs=setA[ix],
-               ys=setB[ix],
-               zs=setC_enum[ix],
+    ax.scatter(xs=setA.where(survivorship==0),
+               ys=setC.where(survivorship==0),
+               zs=setB.where(survivorship==0),
                label="drowned", 
                s=s)
 
 
     
     # plot survived:
-    ix = np.where(survivorship==1)[0]
-    ax.scatter(xs=setA[ix],
-               ys=setB[ix],
-               #zs=np.ones(len(ix)),
-               zs=setC_enum[ix],
+    ax.scatter(xs=setA.where(survivorship==1),
+               ys=setC.where(survivorship==1),
+               zs=setB.where(survivorship==1),
                label="survived",
                s=s)
 
@@ -351,15 +361,18 @@ def scatter3d(classA, classB):
     
     ax.legend()
     ax.set_xlabel(classA)
-    ax.set_ylabel(classB)
-    ax.set_zlabel(classC)
+    ax.set_ylabel(classC)
+    ax.set_zlabel(classB)
 
     #plt.show()
 
 
     fig.savefig(f"figs/scatter3d.pdf")
 
-#pd.set_option('max_columns', 12)
+
+
+
+
 
 
 #------------------------------------------------------------------------------------------------
@@ -368,7 +381,6 @@ def scatter3d(classA, classB):
 survival_rates()
 plot_distributions()
 scatter2d("Age", "Fare")
-scatter2d("Sex", "Fare")
 scatter3d("Fare", "Age")
 
 
@@ -381,7 +393,7 @@ Tanker om datasettet:
             + Trenger ikke bety stort, men var verdt å undersøke
             + Undersøkte nedi her
 
-        - Prior: 
+        - Min prior om datasettet: 
             + Passenger class, ticker price, age, sex vil ha mye å si for overlevelse
             + Men: passenger class og ticket price representerer ca. det samme
 
@@ -394,10 +406,9 @@ Tanker om datasettet:
     * Spm: Teller vi barn dobbelt hvis begge foreldrene er på?
         - Hva med søsken?
 
-
-    * Se på sannsynlighet for overlevelse som funksjon av billettpris
-    * Se på sannsynlighet for overlevelse som funksjon av alder
-    * Se på sannsynlighet for overlevelse som funksjon av kjønn
+    * Bayesisk sannsynlighetsestimat:
+        - Prob(survived given sex) gav det samme som survival rate of sex 
+        - Forteller det noe?
 """
 
 
@@ -659,144 +670,321 @@ test_labels = tf.convert_to_tensor(np.array(titanic_labels)[test_indices])
 
 assert training_set.shape[0] + test_set.shape[0] == n_total_data
 
-##-----------------------------------------------------------------------------
-## Make onehot encoded labels                                                 :
-##-----------------------------------------------------------------------------
-#test_labels_onehot = np.zeros(shape=(test_labels.shape[0], n_classes))
-#test_labels_onehot[np.arange(test_labels.shape[0]),test_labels]=1
 
-#training_labels_onehot = np.zeros(shape=(training_labels.shape[0], n_classes))
-#training_labels_onehot[np.arange(training_labels.shape[0]),training_labels]=1
+do_classification=False
+if do_classification:
+    #-------------------------------------------------------------------------
+    # Create neural net
+    #-------------------------------------------------------------------------
+    input_size = titanic_tensor.shape[1]
+    output_size = 1
+    hidden_layers = [64, 32]
+    #hidden_layers = []
 
+    inputs = keras.Input(shape=(input_size, ), 
+                         name="input_layer")
 
-#-----------------------------------------------------------------------------
-# Create neural net
-#-----------------------------------------------------------------------------
-input_size = titanic_tensor.shape[1]
-output_size = 1
-hidden_layers = [32]
-#hidden_layers = []
+    # Forward pass:
+    x = inputs
+    for i in range(len(hidden_layers)):
+        x = layers.Dense(units=hidden_layers[i], activation="relu")(x)  
 
-inputs = keras.Input(shape=(input_size, ), 
-                     name="input_layer")
-
-# Forward pass:
-x = inputs
-for i in range(len(hidden_layers)):
-    x = layers.Dense(units=hidden_layers[i], activation="relu")(x)  
-
-# Output:
-#outputs = layers.Dense(units=output_size, activation="softmax")(x)
-outputs = layers.Dense(units=output_size, activation="sigmoid")(x)
+    # Output:
+    #outputs = layers.Dense(units=output_size, activation="softmax")(x)
+    outputs = layers.Dense(units=output_size, activation="sigmoid")(x)
 
 
-#x = layers.Conv2D(filters=32, kernel_size=(3, 3), activation="relu")(inputs)
+    #x = layers.Conv2D(filters=32, kernel_size=(3, 3), activation="relu")(inputs)
 
-#Wx = layers.Flatten()(x)
-#x = layers.Dropout(0.5)(x)
-# x = layers.Dense(units=128, activation='relu')(x)
-# x = layers.BatchNormalization()(x)
+    #Wx = layers.Flatten()(x)
+    #x = layers.Dropout(0.5)(x)
+    # x = layers.Dense(units=128, activation='relu')(x)
+    # x = layers.BatchNormalization()(x)
 
-#outputs = layers.Dense(units=n_classes, activation='softmax')(x)
+    #outputs = layers.Dense(units=n_classes, activation='softmax')(x)
 
-model = keras.Model(inputs=inputs, outputs=outputs, name="titanic_model") 
-model.summary()
-plot_model(model, 
-           to_file="figs/model.pdf", 
-           show_shapes=True,
-           show_layer_names=True)
+    model = keras.Model(inputs=inputs, outputs=outputs, name="titanic_model") 
+    model.summary()
+    plot_model(model, 
+               to_file="figs/model.pdf", 
+               show_shapes=True,
+               show_layer_names=True)
 
 
-#-----------------------------------------------------------------------------
-# Training a neural net to predict survival                                  : 
-#-----------------------------------------------------------------------------
-#loss = keras.losses.CategoricalCrossentropy(from_logits=False)
-loss = keras.losses.BinaryCrossentropy(from_logits=False)
-callback = tf.keras.callbacks.EarlyStopping(monitor="loss", patience=3)
+    #-------------------------------------------------------------------------
+    # Training a neural net to predict survival                             : 
+    #-------------------------------------------------------------------------
+    #loss = keras.losses.CategoricalCrossentropy(from_logits=False)
+    loss = keras.losses.BinaryCrossentropy(from_logits=False)
+    callback = tf.keras.callbacks.EarlyStopping(monitor="loss", patience=3)
 
-model.compile(
-    loss=loss,
-    optimizer=keras.optimizers.Adam(),
-    metrics=["accuracy"],
-)
-print(titanic_tensor.shape)
-print(titanic_labels.shape)
+    model.compile(
+        loss=loss,
+        optimizer=keras.optimizers.Adam(),
+        metrics=["accuracy"],
+    )
+    print(titanic_tensor.shape)
+    print(titanic_labels.shape)
 
-history = model.fit(training_set, 
-                    training_labels, 
-                    batch_size=40,
-                    epochs=100,
-                    validation_split=0.2,
-                    callbacks=[callback])
+    history = model.fit(training_set, 
+                        training_labels, 
+                        batch_size=40,
+                        epochs=100,
+                        validation_split=0.2,
+                        callbacks=[callback])
 
 
 
-#-----------------------------------------------------------------------------
-# plot training development:
-#-----------------------------------------------------------------------------
-fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False,  sharey=False)
-for key in history.history.keys():
-    ax.plot(history.history[key], label=key)
-ax.legend()
-ax.set_xlabel("epoch")
-ax.set_title("Training development")
-fig.savefig("figs/training_development.pdf")
+    #-------------------------------------------------------------------------
+    # plot training development:
+    #-------------------------------------------------------------------------
+    fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False,  sharey=False)
+    for key in history.history.keys():
+        ax.plot(history.history[key], label=key)
+    ax.legend()
+    ax.set_xlabel("epoch")
+    ax.set_title("Training development")
+    fig.savefig("figs/training_development.pdf")
 
 
-#-----------------------------------------------------------------------------
-# Prediction on test set:
-#-----------------------------------------------------------------------------
-predictions = ((model.predict(x=test_set) > 0.5)*1).reshape(-1)
-n_correct = np.sum(predictions==test_labels)
-accuracy = n_correct/len(test_labels)
-print("Test accuracy:", accuracy) 
+    #-------------------------------------------------------------------------
+    # Prediction on test set:
+    #-------------------------------------------------------------------------
+    predictions = ((model.predict(x=test_set) > 0.5)*1).reshape(-1)
+    n_correct = np.sum(predictions==test_labels)
+    accuracy = n_correct/len(test_labels)
+    print("Test accuracy:", accuracy) 
 
 
-# print(predictions) 
+    # print(predictions) 
 
-"""
-Resultat:
-    * Opptil 89% accuracy
-    * Stor variasjon mhp. rng seed, som betyr at modellen ikke er veldig robust 
+    """
+    Resultat:
+        * Opptil 89% accuracy
+            * Men man vile fått 
+        * Stor variasjon mhp. rng seed, som betyr at modellen ikke er veldig robust 
 
-    * Kjønn ser ut som den viktigste klassen
+        * Kjønn ser ut som den viktigste klassen
 
-    * Men er jo klart at dette datasettet er umulig å klassifisere særlig bra
+        * Men er jo klart at dette datasettet er umulig å klassifisere særlig bra
 
-"""
+    """
 
 
-# Implement a modell predicting 'Survived' here. 
-# Tip: It may be that the data set needs some further transformation. 
-# Tips: Remember that you can easily import a library or method of your choice.
+    # Implement a modell predicting 'Survived' here. 
+    # Tip: It may be that the data set needs some further transformation. 
+    # Tips: Remember that you can easily import a library or method of your choice.
 
-"""To obtain an impression of your model's performance, we would like to have a quick look at the precision and recall. Please obtain the precision and recall for your survival prediciton model, and comment on the findings. 
+    """To obtain an impression of your model's performance, we would like to have a quick look at the precision and recall. Please obtain the precision and recall for your survival prediciton model, and comment on the findings. 
 
-"""
+    """
 
-# Obtain the recall and precision here.
-# Vi sier at positiv = survival, i.e. label 1
-true_positives = np.argwhere(np.array(test_labels==1) * (predictions==1))
-false_positives = np.argwhere(np.array(test_labels==0) * (predictions==1))
-false_negatives = np.argwhere(np.array(test_labels==1) * (predictions==0))
-true_negatives = np.argwhere(np.array(test_labels==0) * (predictions==0))
+    # Obtain the recall and precision here.
+    # Vi sier at positiv = survival, i.e. label 1
+    true_positives = np.argwhere(np.array(test_labels==1) * (predictions==1))
+    false_positives = np.argwhere(np.array(test_labels==0) * (predictions==1))
+    false_negatives = np.argwhere(np.array(test_labels==1) * (predictions==0))
+    true_negatives = np.argwhere(np.array(test_labels==0) * (predictions==0))
 
-assert len(true_positives)+len(false_positives)+len(false_negatives) + len(true_negatives) == len(predictions)
+    assert len(true_positives)+len(false_positives)+len(false_negatives) + len(true_negatives) == len(predictions)
 
-precision = len(true_positives) / (len(true_positives) + len(false_positives))
-recall = len(true_positives) / (len(true_positives) + len(false_negatives))
-print("Precision: ", precision) 
-print("Recall: ", recall) 
-
-#print(true_positives==true_positives2)
-#n_false_positives = (predictions-1)
+    precision = len(true_positives) / (len(true_positives) + len(false_positives))
+    recall = len(true_positives) / (len(true_positives) + len(false_negatives))
+    print("Precision: ", precision) 
+    print("Recall: ", recall) 
 
 
 
+def stat_guesser():
+    # What's our accuracy if we say that all men die and all women survive?
+
+    sex = np.array(titanic_dataset["Sex"].dropna())
+    survived = np.array(titanic_dataset["Survived"].dropna())
+
+    n = len(sex)
+    guesses = []
+
+
+    # We predict that all men die and all women survive:
+    # This gets us 78 % accuracy.
+    for s in sex:  
+        print(s) 
+
+        # if it's a female, we guess survived=1, else 0 
+        if s==0:
+            guesses.append(0.)
+        elif s==1:
+            guesses.append(1.)
+
+    guesses = np.array(guesses)
+
+    n_correct = np.sum(np.array(guesses)==survived)
+
+    # The above is actually equivalent to just doing:
+    # n_correct = np.sum(sex==survived)
+
+    acc = n_correct/n
+    print("Acc by stat_guesser:", acc) 
+    
+
+
+
+def prob_hist_age():
+    """
+    Posterior function given the knowledge of one param value for a single person.
+
+    For example how the probability of surviving as ticket price increases
+
+    Kan se på sannsynligheten for å overleve med alder for bare menn/kvinner
+    """
+    param = "Age"
+
+    survivorship = titanic_dataset["Survived"]
+
+    param_array = titanic_dataset[param]
+    param_max = np.max(param_array)
+    
+
+    fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False,  sharey=False)
+
+    step=10
+    age_distr_survived, bins = np.histogram(param_array.where(survivorship==1).dropna(), 
+                                                              bins=np.arange(param_max+1,step=step)) 
+
+    age_distr_all, bins = np.histogram(param_array.dropna(), bins=np.arange(param_max+1,step=step)) 
+
+    probabilities = age_distr_survived / age_distr_all
+
+    # must condition?  
+    # normalize:
+    probabilities /= np.sum(probabilities)
+
+    ax.hist(bins[:-1], bins, weights=probabilities)
+
+    ax.set_title("Probability of survival by age group")
+    ax.set_xlabel("age")
+    ax.set_ylabel("p")
+
+    fig.savefig("figs/prob_hist_age.pdf")
+
+
+
+def prob_hist_fare():
+    param = "Fare"
+
+    survivorship = titanic_dataset["Survived"]
+
+    param_array = titanic_dataset[param]
+    param_max = np.max(param_array)
+    
+
+
+    fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False,  sharey=False)
+
+    step=25
+    distr_survived, bins = np.histogram(param_array.where(survivorship==1).dropna(), 
+                                                              bins=np.arange(param_max+step+1,step=step)) 
+
+    distr_all, bins = np.histogram(param_array.dropna(), bins=np.arange(param_max+step+1,step=step)) 
+
+    # setting zero elements i the denominator to 1
+    for i in range(len(distr_all)):
+        if distr_all[i] == 0:
+            distr_all[i] = 1
+
+
+    probabilities = distr_survived / distr_all
+
+    probabilities /= np.sum(probabilities)
+
+    ax.hist(bins[:-1], bins, weights=probabilities)
+
+    ax.set_title("Probability of survival by fare price group")
+    ax.set_xlabel("fare")
+    ax.set_ylabel("p")
+
+    fig.savefig("figs/prob_hist_fare.pdf")
+
+
+
+def prob_hist_parch():
+    param = "Parch"
+
+    survivorship = titanic_dataset["Survived"]
+
+    param_array = titanic_dataset[param]
+    param_max = np.max(param_array)
+    
+
+
+    fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False,  sharey=False)
+
+    step=1
+    distr_survived, bins = np.histogram(param_array.where(survivorship==1).dropna(), 
+                                                              bins=np.arange(param_max+step+1,step=step)) 
+
+    
+
+    distr_all, bins = np.histogram(param_array.dropna(), bins=np.arange(param_max+step+1,step=step)) 
+
+    # setting zero elements i the denominator to 1
+    for i in range(len(distr_all)):
+        if distr_all[i] == 0:
+            distr_all[i] = 1
+
+
+    probabilities = distr_survived / distr_all
+
+    probabilities /= np.sum(probabilities)
+
+    ax.hist(bins[:-1], bins, weights=probabilities)
+
+    ax.set_title("Probability of survival by parch group")
+    ax.set_xlabel("parch")
+    ax.set_ylabel("p")
+
+
+    fig.savefig("figs/prob_hist_parch.pdf")
+
+
+def prob_hist_sex():
+    param = "Sex"
+
+    survivorship = titanic_dataset["Survived"]
+
+    param_array = titanic_dataset[param]
+    param_max = np.max(param_array)
+    
+    fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False,  sharey=False)
+    step=1
+    distr_survived, bins = np.histogram(param_array.where(survivorship==1).dropna(), 
+                                                              bins=np.arange(param_max+step+1,step=step)) 
+
+
+    distr_all, bins = np.histogram(param_array.dropna(), bins=np.arange(param_max+step+1,step=step)) 
+
+
+
+    probabilities = distr_survived / distr_all
+
+    probabilities /= np.sum(probabilities)
+
+    ax.hist(bins[:-1], bins, weights=probabilities)
+
+    ax.set_title("Probability of survival by sex")
+    ax.set_xticklabels(["male", "female"])
+    ax.set_xticks([0.5, 1.49])
+    ax.set_ylabel("p")
+
+    fig.savefig("figs/prob_hist_sex.pdf")
 
 
 def main():
-    #plot_distributions()
+    prob_hist_age()
+    prob_hist_fare()
+    prob_hist_parch()
+    prob_hist_sex()
+    stat_guesser()
     return 0
 
 if __name__=="__main__":
