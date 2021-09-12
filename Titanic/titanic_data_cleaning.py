@@ -163,6 +163,7 @@ def plot_distributions():
 
     ax.set_ylabel("N individuals")
     ax.set_xlabel("N siblings/spouses")
+    ax.set_xticks(np.arange(9))
     ax.legend()
 
 
@@ -185,6 +186,175 @@ def plot_distributions():
     fig.tight_layout(rect=[0, 0.03, 1, 0.95])
     fig.savefig("figs/distributions.pdf")
 
+def plot_distributions2():
+
+    fig, axes = plt.subplots(nrows=4, ncols=2, sharex=False,  sharey=False)
+    #fig, axes = plt.subplots(nrows=1, ncols=1, sharex=False,  sharey=False)
+
+    fig.set_size_inches([8.3, 11.7])  # A4
+
+    # Age distribution by survivor status:
+    survivorship = titanic_dataset["Survived"]
+
+    ages = titanic_dataset["Age"]
+    ax = axes[0,0]
+
+    ages.where(survivorship==0).hist(ax=ax, bins=np.arange(ages.max()+1), label="drowned")
+    ages.where(survivorship==1).hist(ax=ax, bins=np.arange(ages.max()+1), label="survived")
+
+    #ax.hist(ages, bins=np.arange(ages.max()), label="Ages")
+    ax.set_xlabel("age (year)")
+    ax.set_ylabel("N individuals")
+    #ax.legend()
+
+
+
+    # Fare distribution by survivor status:
+    fares = titanic_dataset["Fare"]
+    ax = axes[0,1]
+    alpha = 0.5
+
+    fares.where(survivorship==0).hist(ax=ax, 
+                                      bins=np.arange(550, step=25), 
+                                      label="drowned", 
+                                      alpha=alpha)
+
+    fares.where(survivorship==1).hist(ax=ax, 
+                                      bins=np.arange(550, step=25), 
+                                      label="survived",
+                                      alpha=alpha)
+
+    #ax.hist(fares, bins=np.arange(fares.max()), label="fares")
+    ax.set_xlabel("price (pound)")
+    #ax.set_ylabel("N individuals")
+    ax.legend()
+
+
+    #------------------------------------------------------------------------------------------
+    # Survivorship distribution:
+    #------------------------------------------------------------------------------------------
+    #survivorship = titanic_dataset["Survived"]
+    ax = axes[1,0]
+    survivorship.where(survivorship==0).hist(ax=ax, rwidth=1, bins=[0,1,2], label="drowned", alpha=0.5)
+    survivorship.where(survivorship==1).hist(ax=ax, rwidth=1, bins=[0,1,2], label="survived", alpha=0.5)
+    ax.set_xticks([0.5, 1.49])
+    ax.set_ylabel("N individuals")
+    #ax.legend()
+    ax.set_ylabel("N individuals")
+    ax.set_xticklabels(["drowned", "survived"])
+    #ax.legend()
+
+
+
+    
+    #------------------------------------------------------------------------------------------
+    # Sex distribution by survivor status:
+    #------------------------------------------------------------------------------------------
+    sexes = titanic_dataset["Sex"]
+    ax = axes[1,1]
+
+    sexes.where(survivorship==0).hist(ax=ax, 
+                                      rwidth=1, 
+                                      bins=[0,1,2], 
+                                      label="drowned",
+                                      alpha=alpha)
+    sexes.where(survivorship==1).hist(ax=ax, 
+                                      rwidth=1, 
+                                      bins=[0,1,2], 
+                                      label="survived",
+                                      alpha=alpha)
+
+    ax.set_xticks([0.5, 1.49])
+
+    #ax.set_ylabel("N individuals")
+    #ax.legend()
+
+
+    # Parch distribution by survivor status:
+    parch = titanic_dataset["Parch"]
+    ax = axes[2,0]
+
+    parch.where(survivorship==0).hist(ax=ax, 
+                                      bins=np.arange(parch.max()+1)-0.5, 
+                                      label="drowned",
+                                      alpha=alpha)
+    parch.where(survivorship==1).hist(ax=ax, 
+                                      bins=np.arange(parch.max()+1)-0.5, 
+                                      label="survived",
+                                      alpha=alpha)
+
+    #parch.hist(ax=ax, bins=np.arange(parch.max()+2)-0.5, label="Parch (children)")
+    ax.set_xticks([0,1,2,3,4,5,6])
+
+    ax.set_xlabel("price (pound)")
+    ax.set_ylabel("N individuals")
+    #ax.legend()
+    fig.tight_layout()
+
+
+
+    #------------------------------------------------------------------------------------------
+    # Passenger class distribution:
+    #------------------------------------------------------------------------------------------
+    passenger_class = titanic_dataset["Pclass"]
+
+    ax = axes[2,1]
+    passenger_class.where(survivorship==0).hist(ax=ax, 
+                                                bins=np.arange(0,4)+0.5, 
+                                                label="drowned", alpha=alpha)
+    passenger_class.where(survivorship==1).hist(ax=ax, 
+                                                bins=np.arange(0,4)+0.5, 
+                                                label="survived", alpha=alpha)
+
+    ax.set_xticks([1,2,3])
+    ax.set_xlabel("class")
+    #ax.legend()
+
+
+    #------------------------------------------------------------------------------------------
+    # Sibling/spouse distribution:
+    #------------------------------------------------------------------------------------------
+    sibspouse = titanic_dataset["SibSp"]
+
+    ax = axes[3,0]
+    sibspouse.where(survivorship==1).hist(ax=ax, 
+                                          bins=np.arange(sibspouse.max()+2)-0.5, 
+                                          label="Siblings/spouses", alpha=alpha)
+    sibspouse.where(survivorship==1).hist(ax=ax, 
+                                          bins=np.arange(sibspouse.max()+2)-0.5, 
+                                          label="Siblings/spouses", alpha=alpha)
+
+    ax.set_ylabel("N individuals")
+    ax.set_xlabel("N siblings/spouses")
+    ax.set_xticks(np.arange(9))
+    #ax.legend()
+
+
+    #------------------------------------------------------------------------------------------
+    # Embarked distribution:
+    #------------------------------------------------------------------------------------------
+    data = titanic_dataset["Embarked"]
+
+    ax = axes[3,1]
+    data.where(survivorship==0).hist(ax=ax, 
+                                     bins=[0,1,2,3],alpha=alpha)
+    data.where(survivorship==1).hist(ax=ax, 
+                                     bins=[0,1,2,3],alpha=alpha)
+
+    ax.set_xticks(np.array(ax.get_xticks())+0.49)
+    ax.set_xlabel("port")
+    #ax.legend()
+
+    # save figure:
+    fig.suptitle("Parameter distributions by survivor status", )
+    fig.tight_layout(rect=[0, 0.03, 1, 0.95])
+
+
+
+
+
+    fig.savefig("figs/distributions2.pdf")
+    exit("asddd")
 
 
 def survival_rates():
@@ -389,7 +559,7 @@ survival_rates()
 plot_distributions()
 scatter2d("Age", "Fare")
 scatter3d("Fare", "Age")
-
+plot_distributions2()
 
 """
 Tanker om datasettet:
@@ -405,7 +575,7 @@ Tanker om datasettet:
             + Men: passenger class og ticket price representerer ca. det samme
 
         - Rasterplot:
-            + Overraskende uniformt fordelt over alder og billettpris
+            + Egentlig ganske uniformt fordelt over alder og billettpris
             + Men ser ut som tettheten i overlevelse øker relativt til druknede med økende billettpris
 
         - Må konvertere strings til tall for AI
@@ -413,9 +583,6 @@ Tanker om datasettet:
     * Spm: Teller vi barn dobbelt hvis begge foreldrene er på?
         - Hva med søsken?
 
-    * Bayesisk sannsynlighetsestimat:
-        - Prob(survived given sex) gav det samme som survival rate of sex 
-        - Forteller det noe?
 """
 
 
@@ -434,7 +601,8 @@ Run the following code to print Null values for each column. What do you see? Wh
 Answer:
     * Depends on the data, of course
     * Can remove data with missing values, as we do
-    * Can intrapolate, as we do with the missing ages
+    * Can intrapolate, as we do here
+        - Here we set missing ages to the mean
         - Could do it stochastically, i.e. draw from a distribution with the mean,
           instead of setting missing values to the mean
 """
@@ -598,6 +766,18 @@ Have you made up your mind regarding other transformations, inspections or measu
 
 """
 
+# Write some thoughts around the bonus question here:
+"""
+Answer:
+
+    * Remove "Survived"-column --> this will be the labels
+
+    * Zero-mean and normalize the data is usually nice
+    * Could downsample the age data into fewer groups
+        - Same with ticket price
+    * Need to represent strings as numbers for the predictor (AI)
+"""
+
 
 # Convert strings to numbers for the sex and Full_port_name classes:
 
@@ -610,17 +790,6 @@ except KeyError:
 
 
 
-
-# Write some thoughts around the bonus question here:
-"""
-Answer:
-
-    * Remove "Survived"-column --> this will be the labels
-
-    * Zero-mean and normalize the data is usually nice
-    * Could downsample the age data into fewer groups
-        - Same with ticket price
-"""
 
 
 
@@ -982,6 +1151,11 @@ def prob_hist_sex():
     ax.set_ylabel("prob")
 
     fig.savefig("figs/prob_hist_sex.pdf")
+
+
+# Todo:
+# Histogram over age with color-encoding after survival
+
 
 
 def SVM():
