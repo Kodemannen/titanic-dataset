@@ -303,7 +303,12 @@ def scatter2d(classA, classB):
 
 def scatter3d(classA, classB):
 
+
     fig = plt.figure()
+    # set white background:
+    #sns.set(rc={'axes.facecolor':'white', 'figure.facecolor':'white'})
+    sns.set(rc={'axes.facecolor':'white'})
+
     ax = fig.add_subplot(111, projection='3d')
 
     # this will be color encoded
@@ -333,11 +338,6 @@ def scatter3d(classA, classB):
 
     s=3 # size of dots
 
-
-
-
-
-
     # plot dead:
     ax.scatter(xs=setA.where(survivorship==0),
                ys=setC.where(survivorship==0),
@@ -362,12 +362,19 @@ def scatter3d(classA, classB):
     ax.legend()
     ax.set_xlabel(classA)
     ax.set_ylabel(classC)
+    ax.set_yticks([0,1])
+    ax.set_yticklabels(["male", "female"])
+
     ax.set_zlabel(classB)
+
+    
 
     #plt.show()
 
-
     fig.savefig(f"figs/scatter3d.pdf")
+
+    # change back to default sns:
+    sns.set()
 
 
 
@@ -673,12 +680,13 @@ assert training_set.shape[0] + test_set.shape[0] == n_total_data
 
 do_classification=False
 if do_classification:
+
     #-------------------------------------------------------------------------
     # Create neural net
     #-------------------------------------------------------------------------
     input_size = titanic_tensor.shape[1]
     output_size = 1
-    hidden_layers = [64, 32]
+    hidden_layers = [128, 128]
     #hidden_layers = []
 
     inputs = keras.Input(shape=(input_size, ), 
@@ -720,16 +728,14 @@ if do_classification:
 
     model.compile(
         loss=loss,
-        optimizer=keras.optimizers.Adam(),
+        optimizer=keras.optimizers.Adam(learning_rate=0.001),
         metrics=["accuracy"],
     )
-    print(titanic_tensor.shape)
-    print(titanic_labels.shape)
 
     history = model.fit(training_set, 
                         training_labels, 
-                        batch_size=40,
-                        epochs=100,
+                        batch_size=60,
+                        epochs=1000,
                         validation_split=0.2,
                         callbacks=[callback])
 
@@ -808,7 +814,6 @@ def stat_guesser():
     # We predict that all men die and all women survive:
     # This gets us 78 % accuracy.
     for s in sex:  
-        print(s) 
 
         # if it's a female, we guess survived=1, else 0 
         if s==0:
@@ -824,7 +829,7 @@ def stat_guesser():
     # n_correct = np.sum(sex==survived)
 
     acc = n_correct/n
-    print("Acc by stat_guesser:", acc) 
+    print("Acc by guessing all women live, all men die:", acc) 
     
 
 
@@ -934,10 +939,10 @@ def prob_hist_parch():
 
 
     probabilities = distr_survived / distr_all
-
     probabilities /= np.sum(probabilities)
-
     ax.hist(bins[:-1], bins, weights=probabilities)
+
+    #ax.hist(bins[:-1], bins, weights=distr_all)
 
     ax.set_title("Probability of survival by parch group")
     ax.set_xlabel("parch")
@@ -977,6 +982,11 @@ def prob_hist_sex():
     ax.set_ylabel("p")
 
     fig.savefig("figs/prob_hist_sex.pdf")
+
+
+def SVM():
+
+    return 0
 
 
 def main():
