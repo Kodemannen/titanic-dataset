@@ -286,7 +286,7 @@ def plot_distributions2():
     #parch.hist(ax=ax, bins=np.arange(parch.max()+2)-0.5, label="Parch (children)")
     ax.set_xticks([0,1,2,3,4,5,6])
 
-    ax.set_xlabel("price (pound)")
+    ax.set_xlabel("N children")
     ax.set_ylabel("N individuals")
     #ax.legend()
     fig.tight_layout()
@@ -354,7 +354,6 @@ def plot_distributions2():
 
 
     fig.savefig("figs/distributions2.pdf")
-    exit("asddd")
 
 
 def survival_rates():
@@ -727,7 +726,7 @@ print(titanic_dataset.columns)
 #-----------------------------------------------------------------------------
 # Remove unneccesary columns:
 #-----------------------------------------------------------------------------
-titanic_dataset.drop(labels="Pclass", axis="columns", inplace=True)
+#titanic_dataset.drop(labels="Pclass", axis="columns", inplace=True)
 titanic_dataset.drop(labels="Ticket", axis="columns", inplace=True)
 titanic_dataset.drop(labels="PassengerId", axis="columns", inplace=True)
 titanic_dataset.drop(labels="Name", axis="columns", inplace=True)
@@ -1112,9 +1111,11 @@ def prob_hist_parch():
     ax.hist(bins[:-1], bins, weights=probabilities)
 
     #ax.hist(bins[:-1], bins, weights=distr_all)
+    ax.set_xticks(np.arange(7)+0.5)
+    ax.set_xticklabels(np.arange(7))
 
     ax.set_title("Probability of survival by parch group")
-    ax.set_xlabel("parch")
+    ax.set_xlabel("N children")
     ax.set_ylabel("prob")
 
 
@@ -1152,9 +1153,43 @@ def prob_hist_sex():
 
     fig.savefig("figs/prob_hist_sex.pdf")
 
+def prob_hist_class():
+    param = "Pclass"
 
-# Todo:
-# Histogram over age with color-encoding after survival
+    survivorship = titanic_dataset["Survived"]
+
+    param_array = titanic_dataset[param]
+    param_max = np.max(param_array)
+    
+    fig, ax = plt.subplots(nrows=1, ncols=1, sharex=False,  sharey=False)
+    step=1
+    distr_survived, bins = np.histogram(param_array.where(survivorship==1).dropna(), 
+                                                              bins=np.arange(1, param_max+step+1,step=step)) 
+
+
+    distr_all, bins = np.histogram(param_array.dropna(), bins=np.arange(1, param_max+step+1,step=step)) 
+
+
+    # setting zero elements i the denominator to 1
+    for i in range(len(distr_all)):
+        if distr_all[i] == 0:
+            distr_all[i] = 1
+
+    probabilities = distr_survived / distr_all
+
+    probabilities /= np.sum(probabilities)
+
+    ax.hist(bins[:-1], bins, weights=probabilities)
+
+    ax.set_title("Probability of survival by class")
+    #ax.set_xticklabels(["male", "female"])
+    ax.set_xticks([1.5,2.5,3.5])
+    ax.set_xticklabels([1,2,3])
+    ax.set_ylabel("prob")
+
+    fig.savefig("figs/prob_hist_class.pdf")
+    exit("jall")
+
 
 
 
@@ -1168,6 +1203,7 @@ def main():
     prob_hist_fare()
     prob_hist_parch()
     prob_hist_sex()
+    prob_hist_class()
     stat_guesser()
     return 0
 
