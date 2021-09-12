@@ -868,7 +868,7 @@ def prob_hist_age():
 
     ax.set_title("Probability of survival by age group")
     ax.set_xlabel("age")
-    ax.set_ylabel("p")
+    ax.set_ylabel("prob")
 
     fig.savefig("figs/prob_hist_age.pdf")
 
@@ -906,7 +906,7 @@ def prob_hist_fare():
 
     ax.set_title("Probability of survival by fare price group")
     ax.set_xlabel("fare")
-    ax.set_ylabel("p")
+    ax.set_ylabel("prob")
 
     fig.savefig("figs/prob_hist_fare.pdf")
 
@@ -946,7 +946,7 @@ def prob_hist_parch():
 
     ax.set_title("Probability of survival by parch group")
     ax.set_xlabel("parch")
-    ax.set_ylabel("p")
+    ax.set_ylabel("prob")
 
 
     fig.savefig("figs/prob_hist_parch.pdf")
@@ -979,7 +979,7 @@ def prob_hist_sex():
     ax.set_title("Probability of survival by sex")
     ax.set_xticklabels(["male", "female"])
     ax.set_xticks([0.5, 1.49])
-    ax.set_ylabel("p")
+    ax.set_ylabel("prob")
 
     fig.savefig("figs/prob_hist_sex.pdf")
 
